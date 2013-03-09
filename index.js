@@ -1,6 +1,9 @@
+
 var ProcessMessenger = function(targetProcess){
   this.process = targetProcess || process;
-  this.key = new Date().getTime() +"_"+Math.random();
+  this.id = (new Date().getTime()+Math.random() * 10000000000000000)
+  this.key = this.id.toString(16)
+  console.log(this.id, this.key)
 }
 ProcessMessenger.prototype.send = function(sendMessage, callback){
   if(callback == null){
@@ -17,18 +20,18 @@ ProcessMessenger.prototype.send = function(sendMessage, callback){
     process_messenger_key : this.key,
     message : sendMessage
   }
-  console.log("SEND ");
-  console.log(message);
   this.process.send(message)
 }
 
 ProcessMessenger.prototype.on = function(func){
-  var reciveMessage;
+  var reciveMessage; //なぜかこいつが共有化されてる・・・・
   var self = this;
   var done = function(result){
     self.response(reciveMessage, result)
   }
   process.on("message", function(message){
+    console.log( self.id, message);
+    
     reciveMessage = message;
     func(message.message, done);
   })
