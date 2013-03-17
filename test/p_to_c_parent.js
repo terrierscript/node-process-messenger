@@ -1,12 +1,24 @@
 var fork = require("child_process").fork
 var async = require("async")
 var assert = require("assert")
+var ProcessMessanger = require("../index.js")
 describe('messaging', function () {
-  
+  it('same message should reverse getting FOOO', function (done) {
+    /*var child = fork("./test/p_to_c_child.js")
+    var pm = new ProcessMessanger(child);
+    
+    pm.send("add", messageA, function(result){
+      
+      assert.equal(result, 30)
+    })
+    pm.send("add", messageB, function(result){
+      assert.equal(result, 3)
+    })*/
+    done()
+  })
   it('should recive without args', function (done) {
     var child = fork("./test/p_to_c_child.js")
-    var ProcessMessanger = require("../index.js")
-    var pm =  ProcessMessanger(child)
+    var pm = new ProcessMessanger(child)
     pm.send("ping", function(result){
       assert.equal(result, "pong");
       done();
@@ -14,8 +26,7 @@ describe('messaging', function () {
   })
   it('should recive once', function (done) {
     var child = fork("./test/p_to_c_child_once.js")
-    var ProcessMessanger = require("../index.js")
-    var pm =  ProcessMessanger(child)
+    var pm = new ProcessMessanger(child)
     var msg = {
       a : 1,
       b : 2,
@@ -34,10 +45,9 @@ describe('messaging', function () {
   
   it('should recive some result', function (done) {
     var child = fork("./test/p_to_c_child.js")
-    var ProcessMessanger = require("../index.js")
-    var pm =  ProcessMessanger(child);
+    var pm = new ProcessMessanger(child);
     //pm.debug = true;
-    var pm2 = ProcessMessanger(child);
+    var pm2 = new ProcessMessanger(child);
     
     async.parallel([
       function(next){

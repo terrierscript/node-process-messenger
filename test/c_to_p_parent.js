@@ -4,7 +4,7 @@ var ProcessMessenger = require("../");
 
 var child = fork("./test/c_to_p/c_to_p_child.js")
 
-var pm = ProcessMessenger(child);
+var pm = new ProcessMessenger(child);
 describe('child to parent',function(){
   it('recive sample result',function(mochaDone){
     pm.on("add", function(msg, done){

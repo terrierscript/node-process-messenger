@@ -1,55 +1,78 @@
-
-var Message = function(command, msg){
-  var id = (new Date().getTime()+Math.random() * 10000000000000000)
-  var key = this.key = id.toString(16)
-  this.message = msg;
-  this.serialize = function(){
-    return {
-      command : command,
-      process_messenger_key : key,
-      message : msg
-    }
-  }
-}
-
 var ProcessMessenger = function(sendProcess){
   this.sendProcess = sendProcess || process
   this.debug = false;
+  this._sendingMessageKeys = {}
 }
+
+ProcessMessenger.prototype.createMessage = function(command, key, msg){
+  return {
+    command : command,
+    key : key,
+    message : msg
+  }
+}
+
+ProcessMessenger.prototype.createResponseMessage = function(reciveMessage, msg){
+  return {
+    command : reciveMessage.command,
+    key : reciveMessage.key,
+    message : msg
+  }
+}
+
 ProcessMessenger.prototype.log = function(msg){
   if(this.debug){
     console.log(msg);
   }
 }
+ProcessMessenger.prototype.createKey = function(){
+  var rand = Math.round(Math.random() * 100000);
+  var time = new Date().getTime();
+  return time +"_"+ rand
+}
 ProcessMessenger.prototype.send = function(command, sendMessageArgs, callback){
   if(typeof command != "string"){
-    throw "Command must be string";
+    throw new Error("Command must be string");
   }
   if(typeof sendMessageArgs == "function"){
     callback = sendMessageArgs
   }
+  
   if(callback == null){
     callback = function(){}
   }
   
   var self = this;
-  var message = new Message(command, sendMessageArgs);
-  var key = message.key;
+  
+  //create key
+  var key = this.createKey();
+  
+  this._sendingMessageKeys[key] = 1;
+  
+  var message = this.createMessage(command, key, sendMessageArgs)
+  
   // Add Hook Event
   
   self.log("Start send:" + key)
   var messageReciveFunc = function(response){
     self.log("Recive send:"+ key)
-    if(response.process_messenger_key == key){
-      self.log("Recive Success:"+ key)
-      process.removeListener("message", messageReciveFunc)
-      callback(response.message)
+    if(response.key != key){
+      self.log("Incorrect key:"+ key + "," + response.key)
+      return;
     }
+    if(response.command != command){
+      self.log("Incorrect command:"+ command + "," + response.command)
+      return;
+    }
+    
+    self.log("Recive Success:"+ key)
+    process.removeListener("message", messageReciveFunc)
+    callback(response.message)
   }
   this.sendProcess.on("message", messageReciveFunc)
   
   // Send
-  this.sendProcess.send(message.serialize())
+  this.sendProcess.send(message)
 }
 
 ProcessMessenger.prototype.sendProcesslistener = function(){
@@ -65,11 +88,7 @@ ProcessMessenger.prototype.listenerDump = function(){
 
 ProcessMessenger.prototype.response = function(reciveMessage, responseMessage){
   var self = this;
-  var responseSendMessage = {
-    command : reciveMessage.command,
-    process_messenger_key : reciveMessage.process_messenger_key,
-    message : responseMessage
-  }
+  var responseSendMessage = this.createResponseMessage(reciveMessage, responseMessage)
   self.log("Response message")
   self.sendProcess.send(responseSendMessage)
 }
@@ -91,8 +110,8 @@ ProcessMessenger.prototype._hook = function(command, once, reciveFunc){
     }
   }
   self.log("Set Recive event")
-  var hookFunc = once ? "once" : "on";
-  self.sendProcess[hookFunc]("message", function(reciveMessage){
+  var onMessage = function(reciveMessage){
+    
     if(reciveMessage.command != command){
       return;
     }
@@ -100,10 +119,11 @@ ProcessMessenger.prototype._hook = function(command, once, reciveFunc){
     reciveFunc(reciveMessage.message,  function(responseMessage){
       self.response(reciveMessage, responseMessage)
     });
-  })
+    if(once){
+      self.sendProcess.removeListener("message",onMessage);
+    }
+  }
+  self.sendProcess.on("message", onMessage);
 }
 
-module.exports = function(targetProcess){
-  return new ProcessMessenger(targetProcess);
-}
-module.exports.ProcessMessenger = ProcessMessenger
+module.exports = ProcessMessenger

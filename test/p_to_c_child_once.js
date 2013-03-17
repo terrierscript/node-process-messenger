@@ -1,5 +1,5 @@
 var ProcessMessenger = require("../index.js");
-var pm = ProcessMessenger()
+var pm = new ProcessMessenger()
 
 //var pm = require("../index.js").child
 pm.once("add", function(reciveMessage, done){
