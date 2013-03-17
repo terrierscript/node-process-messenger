@@ -1,6 +1,6 @@
 {
   "name": "process-messenger",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Child process message wrapper",
   "main": "index.js",
   "scripts": {
