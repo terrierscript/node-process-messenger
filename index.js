@@ -21,16 +21,19 @@ ProcessMessenger.prototype.log = function(msg){
     console.log(msg);
   }
 }
-ProcessMessenger.prototype.send = function(command, sendMessage, callback){
+ProcessMessenger.prototype.send = function(command, sendMessageArgs, callback){
   if(typeof command != "string"){
     throw "Command must be string";
+  }
+  if(typeof sendMessageArgs == "function"){
+    callback = sendMessageArgs
   }
   if(callback == null){
     callback = function(){}
   }
   
   var self = this;
-  var message = new Message(command, sendMessage);
+  var message = new Message(command, sendMessageArgs);
   var key = message.key;
   // Add Hook Event
   
@@ -71,7 +74,13 @@ ProcessMessenger.prototype.response = function(reciveMessage, responseMessage){
   self.sendProcess.send(responseSendMessage)
 }
 
+ProcessMessenger.prototype.once = function(command, reciveFunc){
+  this._hook(command, true, reciveFunc)
+}
 ProcessMessenger.prototype.on = function(command, reciveFunc){
+  this._hook(command, false, reciveFunc)
+}
+ProcessMessenger.prototype._hook = function(command, once, reciveFunc){
   var self = this;
   if(typeof command != "string"){
     throw "Command must be string";
@@ -82,7 +91,8 @@ ProcessMessenger.prototype.on = function(command, reciveFunc){
     }
   }
   self.log("Set Recive event")
-  self.sendProcess.on("message", function(reciveMessage){
+  var hookFunc = once ? "once" : "on";
+  self.sendProcess[hookFunc]("message", function(reciveMessage){
     if(reciveMessage.command != command){
       return;
     }
