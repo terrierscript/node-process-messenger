@@ -1,13 +1,13 @@
 {
   "name": "process-messenger",
   "version": "0.0.0",
-  "description": "ERROR: No README.md file found!",
+  "description": "Child process message wrapper",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
-  "repository": "",
-  "author": "",
+  "repository": "https://github.com/suisho/node-process-messenger",
+  "author": "suisho",
   "license": "BSD",
   "devDependencies": {
     "mocha": "~1.8.1",
