@@ -4,7 +4,7 @@ Simple wrapper that `child_process`'s messaging node.js
 
 ## Documentation
 
-### ProcessManager([process])
+### ProcessaMessenger([process])
 * process  `process` object. Generally this is result for`child_process.fork`.
 
 Object for process messaging
