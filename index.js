@@ -1,7 +1,7 @@
+var _sendingMessageKeys = {}
 var ProcessMessenger = function(sendProcess){
   this.sendProcess = sendProcess || process
   this.debug = false;
-  this._sendingMessageKeys = {}
 }
 
 ProcessMessenger.prototype.createMessage = function(command, key, msg){
@@ -25,10 +25,22 @@ ProcessMessenger.prototype.log = function(msg){
     console.log(msg);
   }
 }
-ProcessMessenger.prototype.createKey = function(){
+ProcessMessenger.prototype._createKey = function(){
   var rand = Math.round(Math.random() * 100000);
   var time = new Date().getTime();
   return time +"_"+ rand
+}
+ProcessMessenger.prototype.createKey = function(){
+  var _key = this._createKey();
+  var key = _key
+  if(_sendingMessageKeys[key]){
+    key = key + "_" + _sendingMessageKeys[_key];
+  }else{
+    _sendingMessageKeys[_key] = 1;
+  }
+  
+  _sendingMessageKeys[_key]++;
+  return key;
 }
 ProcessMessenger.prototype.send = function(command, sendMessageArgs, callback){
   if(typeof command != "string"){
@@ -46,8 +58,7 @@ ProcessMessenger.prototype.send = function(command, sendMessageArgs, callback){
   
   //create key
   var key = this.createKey();
-  
-  this._sendingMessageKeys[key] = 1;
+ 
   
   var message = this.createMessage(command, key, sendMessageArgs)
   

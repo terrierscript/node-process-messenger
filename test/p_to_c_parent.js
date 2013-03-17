@@ -3,17 +3,24 @@ var async = require("async")
 var assert = require("assert")
 var ProcessMessanger = require("../index.js")
 describe('messaging', function () {
-  it('same message should reverse getting FOOO', function (done) {
-    /*var child = fork("./test/p_to_c_child.js")
-    var pm = new ProcessMessanger(child);
+  it('should create key is not duplicate FOOO', function (done) {
+    var __ProcessMessanger1 = require("../index.js")
+    var __ProcessMessanger2 = require("../index.js")
+    __ProcessMessanger1.prototype._createKey = function(){
+      return "key";
+    }
+    __ProcessMessanger2.prototype._createKey = function(){
+      return "key";
+    }
+    var pm1 = new __ProcessMessanger1();
+    var pm2 = new __ProcessMessanger2();
     
-    pm.send("add", messageA, function(result){
-      
-      assert.equal(result, 30)
-    })
-    pm.send("add", messageB, function(result){
-      assert.equal(result, 3)
-    })*/
+    assert.equal(pm1.createKey(), "key");
+    assert.equal(pm1.createKey(), "key_2");
+    assert.equal(pm1.createKey(), "key_3");
+    assert.equal(pm2.createKey(), "key_4");
+    assert.equal(pm2.createKey(), "key_5");
+    
     done()
   })
   it('should recive without args', function (done) {
