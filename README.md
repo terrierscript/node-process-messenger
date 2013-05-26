@@ -14,7 +14,7 @@ Constructor get target process object.
 In parent process:
 
 ```js
-var ProcessMessanger = require("process-messenger")v
+var ProcessMessanger = require("process-messenger")
 var fork = require("child_process").fork
 var child = fork("./sample/child.js")
 var pm = new ProcessMessanger(child)
@@ -23,7 +23,7 @@ var pm = new ProcessMessanger(child)
 And child process
 
 ```js
-var ProcessMessanger = require("process-messenger")v
+var ProcessMessanger = require("process-messenger")
 var pm = new ProcessMessanger()
 ```
 
